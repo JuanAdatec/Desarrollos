@@ -1,3 +1,24 @@
+USE [LOPEZ]
+GO
+
+/****** Object:  View [dbo].[CLIENTES_ERP]    Script Date: 24/05/2024 3:30:16 p. m. ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+
+
+
+
+
+ALTER VIEW [dbo].[CLIENTES_ERP]
+AS
 SELECT     DISTINCT
 	
 	'816006362' EMPRESA_CODIGO,
@@ -154,3 +175,6 @@ WHERE
 			 and C.F201_ID_VENDEDOR NOT IN (''018'', ''019'', ''015'', ''022'', ''020'', ''021'', ''017'', ''016'', ''043'', ''024'', ''030'', ''029'', ''031'', ''032'')') AS C
 WHERE     C.RN = 1 
 AND CLIENTE_CODIGO NOT LIKE '%|%'						 
+
+
+GO

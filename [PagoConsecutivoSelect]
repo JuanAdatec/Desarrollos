@@ -1,0 +1,59 @@
+USE [LOPEZ]
+GO
+/****** Object:  StoredProcedure [dbo].[PagoConsecutivoSelect]    Script Date: 19/07/2024 12:00:37 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		Omar Gonzalez
+-- Create date: 2014-09-16
+-- Description:	sube los consecutivos de pedido
+-- =============================================
+ALTER PROCEDURE [dbo].[PagoConsecutivoSelect]
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+
+	--select 
+	--	rtrim(f350_id_tipo_docto) + '-' + convert(varchar, f350_consec_docto)
+	UPDATE pm SET
+		REFERENCIA = rtrim(f350_id_tipo_docto) + '-' + convert(varchar, f350_consec_docto),
+		REPORTADO = 'N'
+	from 
+		[SRVERP\SIESA].[UnoEE_Real].dbo.t350_co_docto_contable dc inner join [SRVERP\SIESA].[UnoEE_Real].dbo.t357_co_ingresos_caja ic on
+			dc.f350_id_cia = ic.f357_id_cia
+			and dc.f350_rowid = ic.f357_rowid_docto
+			and dc.f350_id_cia = 1
+		inner join PAGO_MAST pm on
+			ic.f357_referencia COLLATE Modern_Spanish_CI_AS = 'RC-' +  pm.NUMERO_RECIBO_PAGO
+	where
+		pm.REFERENCIA = 'PENDIENTE ERP'
+
+	
+
+	
+	DELETE from AD_TBL_RC WHERE F_NUMERO_REG IN (SELECT CONSECUTIVO FROM PAGO_MAST WITH(NOLOCK) WHERE FECHA_CREA > GETDATE() - 20 AND REFERENCIA <> 'PENDIENTE ERP')
+	DELETE from AD_TBL_RC_CAJA WHERE F_NUMERO_REG IN (SELECT CONSECUTIVO FROM PAGO_MAST WITH(NOLOCK) WHERE FECHA_CREA > GETDATE() - 20 AND REFERENCIA <> 'PENDIENTE ERP') 
+	DELETE from AD_TBL_RC_CXC WHERE F_NUMERO_REG IN (SELECT CONSECUTIVO FROM PAGO_MAST WITH(NOLOCK) WHERE FECHA_CREA > GETDATE() - 20 AND REFERENCIA <> 'PENDIENTE ERP')
+
+
+	SELECT
+		[EMPRESA_CODIGO],
+		[PAGO_CODIGO],
+		[CONSECUTIVO],
+		[FECHA_DESCARGA],
+		[REFERENCIA],
+		[ESTADO]
+	FROM 
+		[ADATEC].[dbo].[PAGO_MAST]
+	WHERE
+		[REPORTADO] IS NULL 
+		OR [REPORTADO] = 'N'
+
+END
+
+
